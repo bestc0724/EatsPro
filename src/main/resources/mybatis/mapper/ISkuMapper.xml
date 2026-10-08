@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eatspro.pintuan.infrastructure.dao.ISkuMapper">
+
+    <resultMap id="dataMap" type="com.eatspro.pintuan.infrastructure.dao.po.Sku">
+        <id column="id" property="id"/>
+        <result column="source" property="source"/>
+        <result column="channel" property="channel"/>
+        <result column="goods_id" property="goodsId"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="original_price" property="originalPrice"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="querySkuByGoodsId" parameterType="java.lang.String" resultMap="dataMap">
+        select source, channel, goods_id, goods_name, original_price
+        from sku
+        where goods_id = #{goodsId}
+    </select>
+    <select id="listProducts" resultType="java.util.Map">
+        SELECT
+            s.goods_id,
+            s.goods_name,
+            s.original_price,
+            sa.activity_id
+        FROM sku s
+        INNER JOIN sc_sku_activity sa
+        ON s.goods_id = sa.goods_id
+        AND s.source = sa.source
+        AND s.channel = sa.channel
+        WHERE s.source = 's01'
+          AND s.channel = 'c01'
+    </select>
+
+</mapper>

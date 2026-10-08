@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eatspro.pintuan.infrastructure.dao.IGroupBuyActivityMapper">
+
+    <resultMap id="dataMap" type="com.eatspro.pintuan.infrastructure.dao.po.GroupBuyActivity">
+        <id column="id" property="id"/>
+        <result column="activity_id" property="activityId"/>
+        <result column="activity_name" property="activityName"/>
+        <result column="discount_id" property="discountId"/>
+        <result column="group_type" property="groupType"/>
+        <result column="take_limit_count" property="takeLimitCount"/>
+        <result column="target" property="target"/>
+        <result column="valid_time" property="validTime"/>
+        <result column="status" property="status"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="tag_id" property="tagId"/>
+        <result column="tag_scope" property="tagScope"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="createGroupBuyActivity">
+        INSERT INTO group_buy_activity (
+            activity_id, activity_name, discount_id, product_type,
+            dish_id, setmeal_id, target, valid_time,
+            take_limit_count, group_type, status, start_time
+        ) VALUES (
+                     #{activityId},
+                     #{params.activityName},
+                     #{params.discountId},
+                     #{params.productType},
+                     #{params.dishId},
+                     #{params.setmealId},
+                     #{params.target},
+                     #{params.validTime},
+                     #{params.takeLimitCount},
+                     0,
+                     0,
+                     NOW()
+                 )
+    </insert>
+    <update id="updateActivityStatus">
+        UPDATE group_buy_activity
+        SET status = #{status},
+            update_time = NOW()
+        WHERE activity_id = #{activityId}
+    </update>
+
+    <select id="queryGroupBuyActivityList" resultMap="dataMap">
+        select * from group_buy_activity
+    </select>
+
+    <select id="queryValidGroupBuyActivity" parameterType="com.eatspro.pintuan.infrastructure.dao.po.GroupBuyActivity"
+            resultMap="dataMap">
+        select
+        activity_id, activity_name, discount_id, group_type, take_limit_count,
+        target, valid_time, status, start_time, end_time, tag_id, tag_scope
+        from group_buy_activity
+        where source = #{source} and channel = #{channel}
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="queryValidGroupBuyActivityId" parameterType="java.lang.Long" resultMap="dataMap">
+        select
+        activity_id, activity_name, discount_id, group_type, take_limit_count,
+        target, valid_time, status, start_time, end_time, tag_id, tag_scope
+        from group_buy_activity
+        where activity_id = #{activityId} and status = 1
+    </select>
+
+    <select id="queryGroupBuyActivityByActivityId" parameterType="java.lang.Long" resultMap="dataMap">
+        select
+        activity_id, activity_name, discount_id, group_type, take_limit_count,
+        target, valid_time, status, start_time, end_time, tag_id, tag_scope
+        from group_buy_activity
+        where activity_id = #{activityId}
+    </select>
+    <select id="listActivitiesByStatus" resultMap="dataMap">
+        select
+            activity_id, activity_name, discount_id, group_type, take_limit_count,
+            target, valid_time, status, start_time, end_time, tag_id, tag_scope
+        from group_buy_activity
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    <select id="countActivitiesByStatus" resultType="java.lang.Integer">
+        select COUNT(*)
+        FROM group_buy_activity
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="listGroupOrders" resultMap="dataMap">
+        SELECT *
+        FROM group_buy_order
+        <where>
+            <if test="teamId != null and teamId != ''">
+                AND team_id = #{teamId}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    <select id="countGroupOrders" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM group_buy_order
+        <where>
+            <if test="teamId != null and teamId != ''">
+                AND team_id = #{teamId}
+            </if>
+        </where>
+    </select>
+    <select id="countActivities" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM group_buy_activity
+    </select>
+
+</mapper>
